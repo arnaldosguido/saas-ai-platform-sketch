@@ -42,6 +42,7 @@ Architettura descritta in modo più discorsivo qui:
 - AI orchestration separata concettualmente dal core applicativo
 - async processing per workload pesanti
 
+```text
 | FRONT
 Page                - ui
  → Hook             - state
