@@ -42,12 +42,14 @@ Architettura descritta in modo più discorsivo qui:
 - AI orchestration separata concettualmente dal core applicativo
 - async processing per workload pesanti
 
-Page
- → Hook
-   → API client
-     → View
-       → Service
-         → AI Orchestrator
+| FRONT
+Page                - ui
+ → Hook             - state
+  → API client      - http integration
+| BACK
+   → View           - http adapter
+     → Service      - logic
+       → AI Orch.   - workflow
 
 ## Stack di riferimento
 
