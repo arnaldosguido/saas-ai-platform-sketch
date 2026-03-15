@@ -51,6 +51,7 @@ Page                - ui
    → View           - http adapter
      → Service      - logic
        → AI Orch.   - workflow
+```
 
 ## Stack di riferimento
 
