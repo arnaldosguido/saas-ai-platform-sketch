@@ -34,12 +34,20 @@ Architettura descritta in modo più discorsivo qui:
 
 ## Obiettivi architetturali
 
+- Features Vertical Slicing / microservices ready
 - multi-tenancy
 - modular monolith backend
 - frontend React organizzato per feature
 - API-first design
 - AI orchestration separata concettualmente dal core applicativo
 - async processing per workload pesanti
+
+Page
+ → Hook
+   → API client
+     → View
+       → Service
+         → AI Orchestrator
 
 ## Stack di riferimento
 
