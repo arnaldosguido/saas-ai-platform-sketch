@@ -52,6 +52,47 @@ Page                - ui
      → Service      - logic
        → AI Orch.   - workflow
 ```
+backend exploded:
+```text
+backend
+└ analytics
+   ├ api/views.py
+   │
+   │   HTTP adapter
+   │
+   ↓
+   services/insight_service.py
+   │
+   │   application logic
+   │
+   ↓
+   ai/orchestrator
+   │
+   │   AI workflow
+   │
+   ↓
+   models.py
+   │
+   │   data access
+```
+con async worker
+```text
+FRONT
+Page                - UI
+ → Hook             - server state / polling / websocket state
+  → API client      - HTTP integration
+
+BACK
+   → View           - HTTP adapter
+     → Service      - application logic
+       → Queue      - job dispatch
+         → Worker   - async execution
+           → AI Orch.- AI workflow
+             → Models / Vector DB / LLM
+
+BACK STATUS CHANNEL
+   → WebSocket consumer - push updates
+```
 
 ## Stack di riferimento
 
