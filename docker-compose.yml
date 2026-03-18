@@ -1,0 +1,41 @@
+services:
+  db:
+    image: ankane/pgvector:latest # Postgres con pgvector già pronto
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=platform_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=pass
+
+  redis:
+    image: redis:7-alpine # Il nostro Message Broker (Coda)
+
+  web:
+    build: ./backend
+    command: uvicorn app.config.asgi:application --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DATABASE_URL=postgres://admin:pass@db:5432/platform_db
+    depends_on:
+      - db
+      - redis
+
+  worker:
+    build: ./backend
+    command: celery -A app.workers.celery_app worker --loglevel=info
+    volumes:
+      - ./backend:/app
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DATABASE_URL=postgres://admin:pass@db:5432/platform_db
+    depends_on:
+      - redis
+      - db
+
+volumes:
+  postgres_data:

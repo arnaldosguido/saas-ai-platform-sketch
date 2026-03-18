@@ -2,17 +2,17 @@ name: Production Deployment
 
 on:
   push:
-    branches: [ main ] # Scatta solo quando fai il push su main
+    branches: [ main ] # Il deploy parte solo quando unisci il codice al ramo principale
 
 jobs:
-  build-and-deploy:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # --- PARTE FRONTEND ---
+      # --- 1. TEST & BUILD FRONTEND ---
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -26,7 +26,7 @@ jobs:
           npm install
           npm run build # Genera la cartella /dist
 
-      # --- PARTE BACKEND (Test) ---
+      # --- 2. TEST BACKEND ---
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -36,10 +36,26 @@ jobs:
         working-directory: ./backend
         run: |
           pip install -r requirements.txt
-          pytest # Assicuriamoci che non ci siano regressioni
+          pytest
 
-      # --- DEPLOY (Esempio via SSH su Nginx) ---
-      - name: Deploy to Server
+      # --- 3. INFRASTRUCTURE AS CODE (Terraform) ---
+      # Questo step assicura che il server/DB siano configurati prima del deploy
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.0"
+
+      - name: Terraform Init & Apply
+        working-directory: ./infra
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      # --- 4. DEPLOY (Copia dei file sul Server reale) ---
+      - name: Deploy Frontend to Server
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SERVER_IP }}
@@ -47,4 +63,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "./frontend/dist/*"
           target: "/var/www/my-saas-frontend"
-          strip_components: 2 # Rimuove 'frontend/dist' dal percorso di destinazione
+          strip_components: 2
+
+      - name: Deploy Backend to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "./backend/*"
+          target: "/var/www/my-saas-backend"

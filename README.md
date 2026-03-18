@@ -94,6 +94,39 @@ BACK STATUS CHANNEL
    → WebSocket consumer - push updates
 ```
 
+```text
+FRONT
+Page                - UI
+                    (React + TypeScript + Vite / Next.js opzionale)
+
+ → Hook             - server state / polling / websocket state
+                    (React Query / TanStack Query + custom hooks + WebSocket client)
+
+  → API client      - HTTP integration
+                    (Axios / Fetch API + OpenAPI client opzionale)
+
+
+BACK
+   → View           - HTTP adapter
+                    (Django REST Framework - DRF)
+     → Service      - application logic
+                    (Python services layer - Django services / pure modules)
+      --------------------------------------- async
+       → Queue      - job dispatch
+                    (Redis + Celery / RQ)
+         → Worker   - async execution
+                    (Celery workers / Python workers)
+           → AI Orch. - AI workflow
+                    (LangChain / LlamaIndex / custom orchestration layer)
+             → Models / Vector DB / LLM
+                    (OpenAI / Anthropic / local models)
+                    (pgvector / Pinecone / Weaviate)
+
+BACK STATUS CHANNEL
+   → WebSocket consumer - push updates
+                    (Django Channels / FastAPI WS / Socket.io)
+```
+
 ## Stack di riferimento
 
 - Frontend: React + TypeScript
